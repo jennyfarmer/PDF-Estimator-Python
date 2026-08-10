@@ -1,0 +1,24 @@
+# IDE settings
+.idea/
+.vscode/
+
+# Python cache and generated metadata
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual environments
+venv/
+.venv/
+
+# Build artifacts
+build/
+dist/
+*.so
+*.pyd
+
+# Local archives
+*.zip
+
+.Rhistory
