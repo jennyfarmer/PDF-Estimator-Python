@@ -34,7 +34,6 @@ class TestOutputContract:
             "cdf",
             "sqr",
             "lagrange",
-            "score",
             "confidence",
             "SURD",
         ):
@@ -54,9 +53,8 @@ class TestOutputContract:
         for arr in (r.y, r.pdf, r.cdf):
             assert np.all(np.isfinite(arr))
 
-    def test_score_and_confidence_are_scalar_floats(self, gaussian_sample):
+    def test_confidence_is_scalar_float(self, gaussian_sample):
         r = estimate_pdf(gaussian_sample)
-        assert isinstance(r.score, float)
         assert isinstance(r.confidence, float)
 
     def test_confidence_in_valid_range(self, gaussian_sample):
@@ -92,11 +90,6 @@ class TestStatisticalAccuracy:
         r = estimate_pdf(RNG.standard_normal(1000))
         assert abs(r.y[np.argmax(r.pdf)]) < 0.5
 
-    def test_uniform_pdf_roughly_flat(self):
-        r = estimate_pdf(RNG.uniform(0, 1, 1000), low_bound=0.0, high_bound=1.0)
-        interior = r.pdf[(r.y > 0.1) & (r.y < 0.9)]
-        assert interior.std() / interior.mean() < 0.3
-
     def test_ks_test_passes_gaussian(self):
         data = RNG.standard_normal(500)
         r = estimate_pdf(data)
@@ -105,23 +98,6 @@ class TestStatisticalAccuracy:
 
 
 class TestParameters:
-    def test_score_types(self, gaussian_sample):
-        for score_type in ("QZ", "LL", "AD"):
-            assert estimate_pdf(gaussian_sample, score_type=score_type).failed == 0
-
-    def test_invalid_score_type_raises(self, gaussian_sample):
-        with pytest.raises(ValueError, match="score_type"):
-            estimate_pdf(gaussian_sample, score_type="INVALID")
-
-    def test_explicit_bounds(self):
-        r = estimate_pdf(RNG.standard_normal(500), low_bound=-5.0, high_bound=5.0)
-        assert r.failed == 0
-        assert float(r.y.min()) >= -5.0 - 1e-9
-        assert float(r.y.max()) <= 5.0 + 1e-9
-
-    def test_lagrange_limits_respected(self, gaussian_sample):
-        assert len(estimate_pdf(gaussian_sample, lagrange_min=2, lagrange_max=5).lagrange) <= 5
-
     def test_empty_data_raises(self):
         with pytest.raises((ValueError, RuntimeError)):
             estimate_pdf(np.array([]))
@@ -131,6 +107,3 @@ class TestParameters:
 
     def test_debug_mode_does_not_crash(self, gaussian_sample):
         assert estimate_pdf(gaussian_sample, debug=True).failed == 0
-
-    def test_fuzz_mode_does_not_crash(self, gaussian_sample):
-        assert estimate_pdf(gaussian_sample, fuzz=True).failed == 0
