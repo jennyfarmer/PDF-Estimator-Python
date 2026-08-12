@@ -6,16 +6,31 @@ build-backend = "scikit_build_core.build"
 name = "pdf_estimator"
 version = "1.0.0"
 description = "Python wrapper for the PDF-Estimator C++ library (Farmer & Jacobs 2019)"
+readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE.txt"]
 requires-python = ">=3.12"
-dependencies = ["numpy"]
+dependencies = ["numpy", "scipy", "matplotlib"]
 authors = [
     {name = "Jenny Farmer"},
     {name = "Andrew Nashed"},
     {name = "Donald Jacobs"}
 ]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Programming Language :: C++",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Homepage = "https://github.com/jennyfarmer/PDF-Estimator-Python"
+Repository = "https://github.com/jennyfarmer/PDF-Estimator-Python"
 
 [project.optional-dependencies]
-dev = ["hypothesis", "pytest", "ruff", "scipy"]
+dev = ["hypothesis", "pytest", "ruff"]
 
 [tool.scikit-build]
 cmake.build-type = "Release"

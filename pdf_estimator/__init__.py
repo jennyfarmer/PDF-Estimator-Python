@@ -11,9 +11,7 @@ Quickstart
 >>> print(result)
 """
 
-import math
 from dataclasses import dataclass
-#from .estimator import DensityEstimator
 
 import numpy as np
 
@@ -74,13 +72,6 @@ class PDFResult:
 def estimate_pdf(
     data,
     *,
-    surd_target: int = 40,
-    surd_min: int = 5,
-    surd_max: int = 100,
-    lagrange_min: int = 1,
-    lagrange_max: int = 200,
-    low_bound: float | None = None,
-    high_bound: float | None = None,
     debug: bool = False,
 ) -> PDFResult:
     """Estimate the probability density function of a 1-D sample.
@@ -89,44 +80,22 @@ def estimate_pdf(
     ----------
     data : array-like
         Input sample of i.i.d. continuous random variables.
-    surd_target : int
-        Target SURD confidence threshold (default 40).
-    surd_min : int
-        Minimum acceptable SURD (default 5).
-    surd_max : int
-        Maximum SURD (default 100).
-    lagrange_min : int
-        Minimum Lagrange multipliers (default 1).
-    lagrange_max : int
-        Maximum Lagrange multipliers (default 200).
-    low_bound : float | None
-        Lower bound for estimation domain. Auto-calculated if None.
-    high_bound : float | None
-        Upper bound for estimation domain. Auto-calculated if None.
-    integration_points : int
-        Number of integration points; 0 = auto (default).
     debug : bool
         Print verbose C++ progress to stdout (default False).
-
 
     Returns
     -------
     PDFResult
     """
 
-    arr = np.asarray(data, dtype=np.float64);#.ravel()
+    arr = np.asarray(data, dtype=np.float64)
     if arr.size == 0:
         raise ValueError("data must be non-empty.")
 
+    arr_cpp = np.ascontiguousarray(arr.reshape(1, -1))
+
     raw = _ext.estimate_pdf(
-        arr,
-        surd_target=surd_target,
-        surd_min=surd_min,
-        surd_max=surd_max,
-        lagrange_min=lagrange_min,
-        lagrange_max=lagrange_max,
-        low_bound=low_bound if low_bound is not None else math.nan,
-        high_bound=high_bound if high_bound is not None else math.nan,
+        arr_cpp,
         debug=debug,
     )
 
