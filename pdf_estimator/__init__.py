@@ -114,12 +114,14 @@ def estimate_pdf(
     PDFResult
     """
 
-    arr = np.asarray(data, dtype=np.float64);#.ravel()
+    arr = np.asarray(data, dtype=np.float64)
     if arr.size == 0:
         raise ValueError("data must be non-empty.")
 
+    arr_cpp = np.ascontiguousarray(arr.reshape(1, -1))
+
     raw = _ext.estimate_pdf(
-        arr,
+        arr_cpp,
         surd_target=surd_target,
         surd_min=surd_min,
         surd_max=surd_max,
