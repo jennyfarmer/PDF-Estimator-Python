@@ -128,10 +128,6 @@ void JointProbability::calculate() {
     matrixSize = pow(pdfSize, nVariables);
     jointPDF = new double[matrixSize];
     vector <double> pdf(pdfSize);
-    cout << "marginal\n";
-    cout << "matrixsize:" << matrixSize << "\n";
-    cout << "nVariables:" << nVariables << "\n";
-    cout << "pdfSize:" << pdfSize << "\n";
     for (int v = 0; v < nVariables; v++) {
         variables[v].calculateMarginals(gridPointsCourse, gridPointsFine);    
     }         

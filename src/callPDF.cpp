@@ -72,31 +72,14 @@ void callPDF::makeCall(int sampleLength, double* sampleData) {
     }
 }
 
-void callPDF::makeCallmv(int sampleLength, int variableLength, double* sampleData) {
-
-    cout << sampleData[0] << "\n";
-    cout << sampleData[1000] << "\n";
+void callPDF::makeCallmv(int sampleLength, int variableLength, int pdfSize, double* sampleData) {
 
     int matrixSize = sampleLength * variableLength;
-    int pdfSize;
-//    pdfSize = ceil(pow(sampleLength / 100.0, 1.0 / (variableLength - 1)));
-    pdfSize = pow(sampleLength, 1.0 / variableLength);
+    int pdfSizer;
+    pdfSizer = pow(sampleLength, 1.0 / variableLength);
 
-    cout << "pdf " << pdfSize << "\n";
     // soften growth (prevents explosion)
-    pdfSize *= 0.75;
-    cout << "pdf " << pdfSize << "\n";
-
-    if (pdfSize > 100) {
-        pdfSize = 100;
-    }
-    if (pdfSize < 32) {
-        pdfSize = 32;
-//        if (pdfSize < 2) {
-//            pdfSize = 2;
-    }
-
-    cout << "pdf " << pdfSize << "\n";
+    pdfSizer *= 0.75;
     vector <Variable> variables;
     variables.reserve(variableLength);
     InputParameters input;
@@ -129,7 +112,6 @@ void callPDF::makeCallmv(int sampleLength, int variableLength, double* sampleDat
     Vmarginals = jp.getMarginals();
     VxMarginals = jp.getMarginalRanges();
     VmarginalSizes = jp.getMarginalSizes();
-//    cout << "marginal " << Vmarginals[0] << "\n";
     solutionFailed = false;
 
 }

@@ -60,7 +60,7 @@ class DensityEstimator:
         if self._joint_pdf_evaluated:
             return self
 
-        X_cpp = np.ascontiguousarray(self.samples.T)
+        X_cpp = np.ascontiguousarray(self.samples)
 
         self._result = estimate_pdf(
             X_cpp,

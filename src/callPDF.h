@@ -27,7 +27,7 @@ public:
     virtual ~callPDF();
 
     void makeCall(int sampleLength, double* sampleData);
-    void makeCallmv(int sampleLength, int variableLength, double* sampleData);
+    void makeCallmv(int sampleLength, int variableLength, int pdfSize, double* sampleData);
 
     void setHigh(double high);
     void setLow(double low);

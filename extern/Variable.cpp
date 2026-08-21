@@ -40,7 +40,6 @@ void Variable::calculateMarginals(vector <double> gridPointsCourse, vector <doub
     xMarginal = write.x;
     marginal = write.PDF;
     marginalSize = xMarginal.size();
-    cout << "marginal size : " << marginalSize << "\n";
     
         
     vector <double> samplePoints = interpolateGrid(write.CDF, write.x, gridPointsCourse);
