@@ -1,7 +1,7 @@
 import numpy as np
 from .base import Distribution
 
-class BananaDistribution(Distribution):
+class Banana2D(Distribution):
     def __init__(
         self,
         bend: float = 0.45,
@@ -14,6 +14,10 @@ class BananaDistribution(Distribution):
 
     @property
     def name(self) -> str:
+        return "Banana2D"
+
+    @property
+    def description(self) -> str:
         return "Two-dimensional banana distribution"
 
     def sample(

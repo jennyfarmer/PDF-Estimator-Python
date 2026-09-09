@@ -34,6 +34,10 @@ class GaussianMixture4D(Distribution):
 
     @property
     def name(self) -> str:
+        return "GaussianMixture4D"
+
+    @property
+    def name(self) -> str:
         return "Four-dimensional correlated Gaussian mixture"
 
     def sample(

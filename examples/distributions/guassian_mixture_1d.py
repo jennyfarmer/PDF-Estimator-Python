@@ -23,6 +23,10 @@ class GaussianMixture1D(Distribution):
 
     @property
     def name(self) -> str:
+        return "GaussianMixture1D"
+
+    @property
+    def description(self) -> str:
         return "One-dimensional Gaussian mixture"
 
     def sample(

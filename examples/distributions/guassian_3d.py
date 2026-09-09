@@ -25,6 +25,10 @@ class CorrelatedGaussian3D(Distribution):
 
     @property
     def name(self) -> str:
+        return "CorrelatedGaussian3D"
+
+    @property
+    def description(self) -> str:
         return "Three-dimensional correlated Gaussian"
 
     def sample(

@@ -31,3 +31,8 @@ class Distribution(ABC):
     def name(self) -> str:
         """Human-readable distribution name."""
         return self.__class__.__name__
+
+    @property
+    def description(self) -> str:
+        """Human-readable distribution description for plotting."""
+        return self.__class__.__description__
