@@ -67,6 +67,8 @@ class DensityEstimator:
             **self.kwargs,
         )
 
+        self.n_eval_points = len(self._result.pdf)
+
         self.n = int(len(self._result.y) / self.d)
 
         # unpack grid
@@ -112,6 +114,7 @@ class DensityEstimator:
             ax=None,
             label=None,
             show=True,
+            norm=None,
             levels=10,
             cmap="viridis"
     ):
@@ -199,6 +202,7 @@ class DensityEstimator:
                 x0_grid,
                 x1_grid,
                 Zij,
+                norm = norm,
                 levels = levels, cmap = cmap
             )
 
@@ -216,7 +220,13 @@ class DensityEstimator:
         return ax
 
 
-    def pairplot(self, smooth_sigma=None, levels=10, features=None, cmap="viridis"):
+    def pairplot(self,
+                 smooth_sigma=None,
+                 features=None,
+                 show=True,
+                 norm=None,
+                 levels=10,
+                 cmap="viridis"):
         if features is None:
             features = list(range(self.d))
         else:
@@ -247,7 +257,7 @@ class DensityEstimator:
                 ]
 
                 pair_estimates[(feature_i, feature_j)] = (
-                    DensityEstimator(**self.kwargs)
+                    DensityEstimator()
                     .fit(pair_samples)
                 )
                 pair_estimates[(feature_i, feature_j)].evaluate_joint_pdf()
@@ -303,7 +313,7 @@ class DensityEstimator:
                         Zij = Z_smooth
 
 
-                    ax.contourf(x, y, Zij, levels=levels, cmap=cmap)
+                    ax.contourf(x, y, Zij, norm=norm, levels=levels, cmap=cmap)
 
                 # Labels
                 if i == n_plotted - 1:
@@ -312,7 +322,10 @@ class DensityEstimator:
                     ax.set_ylabel(f"x{feature_i}")
 
         plt.tight_layout()
-        plt.show()
+        if show:
+            plt.show()
+
+        return fig, axs
 
     def pairplot_integrate(self, levels=10, cmap="viridis", smooth_sigma=None):
 

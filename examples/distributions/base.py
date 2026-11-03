@@ -36,3 +36,7 @@ class Distribution(ABC):
     def description(self) -> str:
         """Human-readable distribution description for plotting."""
         return self.__class__.__description__
+
+    @property
+    def parameters(self):
+        return {}

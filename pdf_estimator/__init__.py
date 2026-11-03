@@ -66,6 +66,7 @@ class PDFResult:
 
 def estimate_pdf(
     data,
+    pdf_size=None
 ) -> PDFResult:
     """Estimate the probability density function of a multivariate data sample.
 
@@ -98,14 +99,19 @@ def estimate_pdf(
 
     arr_cpp = arr.T
 
-    pdf_size = int(
-        0.75 * n_samples ** (1.0 / n_features)
-    )
-
-    if pdf_size > 100:
-        pdf_size = 100
-    if pdf_size < 32:
-        pdf_size = 32
+    if n_features == 1:
+        if pdf_size is not None:
+            raise ValueError("pdf_size is only supported for multivariate data.")
+        pdf_size = 0  # Unused
+    elif pdf_size is None:
+        pdf_size = int(
+            (n_samples / 100) ** (1.0 / (n_features - 1))
+        )
+        pdf_size = max(5, min(100, pdf_size))
+    else:
+        pdf_size = int(pdf_size)
+        if pdf_size < 5:
+            raise ValueError("pdf_size must be at least 5")
 
     raw = _ext.estimate_pdf(
         arr_cpp,
