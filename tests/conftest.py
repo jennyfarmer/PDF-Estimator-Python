@@ -2,7 +2,6 @@ import numpy as np
 import pytest
 
 
-
 @pytest.fixture
 def gaussian_sample():
     RNG = np.random.default_rng(42)

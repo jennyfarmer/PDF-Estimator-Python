@@ -1,4 +1,5 @@
 import numpy as np
+
 from pdf_estimator import DensityEstimator
 
 n_samples = 20_000

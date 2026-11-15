@@ -1,6 +1,9 @@
-import numpy as np
 import math
+
+import numpy as np
+
 from .base import Distribution
+
 
 class Banana(Distribution):
     def __init__(

@@ -1,10 +1,9 @@
 import evaluate_densities
-
-from distributions.guassian_mixture_1d import GaussianMixture1D
-from distributions.banana_2d import Banana2D
-from distributions.sharp_banana import SharpBanana2D
-from distributions.guassian_3d import CorrelatedGaussian3D
+from distributions.banana import Banana as Banana2D
 from distributions.gaussian_mixture_4d import GaussianMixture4D
+from distributions.guassian_3d import CorrelatedGaussian3D
+from distributions.guassian_mixture_1d import GaussianMixture1D
+from distributions.sharp_banana import SharpBanana2D
 
 DISTRIBUTIONS = {
     0: GaussianMixture1D,

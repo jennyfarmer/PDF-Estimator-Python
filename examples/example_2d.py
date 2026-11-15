@@ -1,4 +1,5 @@
 import numpy as np
+
 from pdf_estimator import DensityEstimator
 
 # Generate 2D sample data
