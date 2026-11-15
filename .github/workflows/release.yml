@@ -1,0 +1,171 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      publish_testpypi:
+        description: "Publish the built artifacts to TestPyPI"
+        type: boolean
+        default: false
+
+permissions: {}
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check_version:
+    name: Tag matches project version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Compare tag against [project] version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          python - <<'PY'
+          import os
+          import sys
+          import tomllib
+
+          with open("pyproject.toml", "rb") as fh:
+              declared = tomllib.load(fh)["project"]["version"]
+
+          tag = os.environ["GITHUB_REF_NAME"].removeprefix("v")
+          if tag != declared:
+              sys.exit(
+                  f"Tag {tag!r} does not match pyproject version {declared!r}. "
+                  "Delete the tag, fix the version, and retag."
+              )
+          print(f"ok: tag and pyproject agree on {declared}")
+          PY
+
+  build_wheels:
+    name: Wheels (${{ matrix.label }})
+    needs: [check_version]
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {label: linux-x86_64, runner: ubuntu-24.04}
+          - {label: linux-aarch64, runner: ubuntu-24.04-arm}
+          - {label: macos-arm64, runner: macos-15}
+          - {label: macos-x86_64, runner: macos-15-intel}
+          - {label: windows-amd64, runner: windows-2025}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build and test wheels
+        uses: pypa/cibuildwheel@v4.3.5
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist-wheels-${{ matrix.label }}
+          path: ./wheelhouse/*.whl
+          if-no-files-found: error
+
+  build_sdist:
+    name: Source distribution
+    needs: [check_version]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v10
+        with:
+          python-version: "3.13"
+
+      - name: Build sdist
+        run: uv build --sdist
+
+      - name: Build and test the package from the sdist alone
+        # Guards the most common way a C++ package ships unusable: an sdist
+        # missing CMakeLists.txt or extern/.
+        run: |
+          mkdir -p /tmp/sdist-check
+          tar -xzf dist/*.tar.gz -C /tmp/sdist-check --strip-components=1
+          cd /tmp/sdist-check
+          uv venv
+          uv pip install . pytest
+          uv run --no-project pytest -q tests
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: dist-sdist
+          path: ./dist/*.tar.gz
+          if-no-files-found: error
+
+  check_metadata:
+    name: Check distribution metadata
+    needs: [build_wheels, build_sdist]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: dist-*
+          path: dist
+          merge-multiple: true
+
+      - name: twine check
+        run: pipx run twine check --strict dist/*
+
+      - name: Summarise artifacts
+        run: |
+          ls -l dist
+          echo "wheels: $(ls dist/*.whl | wc -l), sdists: $(ls dist/*.tar.gz | wc -l)"
+          # An unrepaired Linux wheel means auditwheel did not run.
+          if ls dist/*linux_x86_64.whl dist/*linux_aarch64.whl 2>/dev/null | grep -q .; then
+            echo "::error::Found unrepaired linux_* wheels; auditwheel did not run"
+            exit 1
+          fi
+          # Free-threaded builds are intentionally skipped.
+          if ls dist/*t-*.whl 2>/dev/null | grep -q .; then
+            echo "::error::Found free-threaded wheels, which are not supported yet"
+            exit 1
+          fi
+
+  publish_testpypi:
+    name: Publish to TestPyPI
+    if: github.event_name == 'workflow_dispatch' && inputs.publish_testpypi
+    needs: [check_metadata]
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/pdf-estimator
+    permissions:
+      id-token: write # OIDC token for Trusted Publishing
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: dist-*
+          path: dist
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@v1.14.3
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  publish_pypi:
+    name: Publish to PyPI
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [check_metadata]
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pdf-estimator
+    permissions:
+      id-token: write # OIDC token for Trusted Publishing
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: dist-*
+          path: dist
+          merge-multiple: true
+
+      # No password: Trusted Publishing supplies the credential, and PEP 740
+      # attestations are generated by default when id-token: write is present.
+      - uses: pypa/gh-action-pypi-publish@v1.14.3

@@ -1,11 +1,8 @@
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION 3.15...4.0)
 project(pdf_estimator CXX)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-cmake_host_system_information(RESULT N_CORES QUERY NUMBER_OF_LOGICAL_CORES)
-set(CMAKE_BUILD_PARALLEL_LEVEL ${N_CORES})
 
 find_package(pybind11 REQUIRED)
 

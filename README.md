@@ -22,7 +22,17 @@ for one-dimensional, two-dimensional, and higher-dimensional datasets.
 ## Installation
 
 ```bash
-pip install pdf_estimator
+pip install pdf-estimator
+```
+
+Binary wheels are published for Linux, macOS and Windows on CPython 3.11
+through 3.15, so no C++ toolchain is required.
+
+Plotting (`plot`, `pairplot`, `pairplot_integrate`) needs matplotlib, which is
+an optional dependency:
+
+```bash
+pip install 'pdf-estimator[plot]'
 ```
 ## API Overview
 
@@ -169,11 +179,16 @@ Farmer, J. & Jacobs, D. (2019). High throughput nonparametric probability densit
 
 ```bash
 uv sync --extra dev   # install dev dependencies
-uv run pytest tests/test_basic.py   # fast tests
-uv run pytest                       # all tests (slow — includes property-based)
-uv run ruff check .                 # lint
-uv run ruff format .                # format
+uv run pytest         # run the test suite
+uv run ruff check .   # lint
+uv run ruff format .  # format
 ```
+
+Releases are built and published by `.github/workflows/release.yml`, which runs
+[cibuildwheel](https://cibuildwheel.pypa.io/) across all supported platforms and
+uploads to PyPI via Trusted Publishing. To cut a release, bump `version` in
+`pyproject.toml`, then push a matching tag (`v0.1.0`); the workflow refuses to
+publish if the tag and the declared version disagree.
 
 ## License
 
