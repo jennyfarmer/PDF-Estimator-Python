@@ -3,6 +3,7 @@ import pytest
 
 from pdf_estimator import PDFResult, estimate_pdf
 
+
 class TestSmoke:
     def test_import(self):
         from pdf_estimator import PDFResult, estimate_pdf  # noqa: F401

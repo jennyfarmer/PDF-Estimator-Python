@@ -1,8 +1,20 @@
-#from pdf_estimator import estimate_pdf
-from . import estimate_pdf
-import matplotlib.pyplot as plt
 import numpy as np
 from scipy.ndimage import gaussian_filter, gaussian_filter1d
+
+from ._core import estimate_pdf
+
+
+def _require_pyplot():
+    """Import matplotlib lazily so it stays an optional dependency."""
+    try:
+        import matplotlib.pyplot as plt
+    except ModuleNotFoundError as exc:  # pragma: no cover
+        raise ModuleNotFoundError(
+            "Plotting requires matplotlib, which is an optional dependency of "
+            "pdf-estimator. Install it with: pip install 'pdf-estimator[plot]'"
+        ) from exc
+    return plt
+
 
 class DensityEstimator:
     def __init__(self, **kwargs):
@@ -154,6 +166,8 @@ class DensityEstimator:
         if not self._joint_pdf_evaluated:
             self.evaluate_joint_pdf()
 
+        plt = _require_pyplot()
+
         if ax is None:
             _, ax = plt.subplots()
 
@@ -227,10 +241,8 @@ class DensityEstimator:
                  norm=None,
                  levels=10,
                  cmap="viridis"):
-        if features is None:
-            features = list(range(self.d))
-        else:
-            features = list(features)
+        plt = _require_pyplot()
+        features = list(range(self.d)) if features is None else list(features)
 
         n_plotted = len(features)
 
@@ -328,6 +340,7 @@ class DensityEstimator:
         return fig, axs
 
     def pairplot_integrate(self, levels=10, cmap="viridis", smooth_sigma=None):
+        plt = _require_pyplot()
 
         d = self.d
         axes = self.axes

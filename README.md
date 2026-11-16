@@ -181,4 +181,4 @@ This project is licensed under the GNU General Public License v3.0 (or later).
 You are free to redistribute and modify this software under the terms of the GPL.
 This program is distributed **without any warranty**, including without implied warranties of merchantability or fitness for a particular purpose.
 
-See the LICENSE file for full details: <http://www.gnu.org/licenses/>
+The full license text is in [LICENSE.txt](LICENSE.txt); see also <https://www.gnu.org/licenses/>.

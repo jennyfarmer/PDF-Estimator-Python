@@ -1,6 +1,8 @@
 import numpy as np
 from scipy.stats import norm
+
 from .base import Distribution
+
 
 class GaussianMixture1D(Distribution):
     def __init__(

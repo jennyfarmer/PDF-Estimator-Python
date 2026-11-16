@@ -1,9 +1,14 @@
 
+import csv
 import time
 from dataclasses import dataclass
+from pathlib import Path
+
 import numpy as np
 from sklearn.neighbors import KernelDensity
+
 from pdf_estimator import DensityEstimator
+
 
 @dataclass
 class ErrorResults:
@@ -11,9 +16,6 @@ class ErrorResults:
     mae: float
     max_error: float
 
-
-import csv
-from pathlib import Path
 
 
 def write_results(filename, results, append=False):
@@ -28,10 +30,7 @@ def write_results(filename, results, append=False):
         Dictionary of estimator results.
     """
     filename = Path(filename)
-    if append:
-        mode = "a"
-    else:
-        mode = "w"
+    mode = "a" if append else "w"
 
     with filename.open(mode, newline="") as f:
         writer = csv.DictWriter(f, fieldnames=results.keys())

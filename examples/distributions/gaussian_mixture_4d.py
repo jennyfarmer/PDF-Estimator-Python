@@ -37,7 +37,7 @@ class GaussianMixture4D(Distribution):
         return "GaussianMixture4D"
 
     @property
-    def name(self) -> str:
+    def description(self) -> str:
         return "Four-dimensional correlated Gaussian mixture"
 
     def sample(
@@ -86,6 +86,7 @@ class GaussianMixture4D(Distribution):
             self.weights,
             self.means,
             self.covariances,
+            strict=True,
         ):
             density += (
                 weight
