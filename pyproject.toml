@@ -1,47 +1,122 @@
 [build-system]
-requires = ["scikit-build-core>=0.9", "pybind11>=2.11"]
+requires = ["scikit-build-core>=1.0", "pybind11>=3.0,<4"]
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "pdf_estimator"
-version = "1.0.0"
+name = "pdf-estimator"
+version = "0.1.0"
 description = "Python wrapper for the PDF-Estimator C++ library (Farmer & Jacobs 2019)"
 readme = "README.md"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE.txt"]
-requires-python = ">=3.12"
-dependencies = ["numpy", "scipy", "matplotlib"]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2.0",   # np.trapezoid, used in estimator.py and the tests
+    "scipy>=1.13",  # first release built against the numpy 2.x ABI
+]
 authors = [
     {name = "Jenny Farmer"},
     {name = "Andrew Nashed"},
     {name = "Donald Jacobs"}
 ]
+keywords = [
+    "density-estimation",
+    "probability-density",
+    "nonparametric",
+    "maximum-entropy",
+    "statistics",
+]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
     "Programming Language :: C++",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Programming Language :: Python :: Implementation :: CPython",
 ]
 
 [project.urls]
 Homepage = "https://github.com/jennyfarmer/PDF-Estimator-Python"
 Repository = "https://github.com/jennyfarmer/PDF-Estimator-Python"
+Issues = "https://github.com/jennyfarmer/PDF-Estimator-Python/issues"
+Changelog = "https://github.com/jennyfarmer/PDF-Estimator-Python/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
-dev = ["hypothesis", "pytest", "ruff"]
+plot = ["matplotlib>=3.9"]  # first release supporting numpy 2.x
+dev = ["pytest>=8", "ruff", "matplotlib>=3.9"]
 
 [tool.scikit-build]
+minimum-version = "build-system.requires"
+build-dir = "build/{wheel_tag}"
 cmake.build-type = "Release"
+cmake.version = ">=3.15"
+wheel.packages = ["pdf_estimator"]
+sdist.exclude = [
+    ".github",
+    ".gitignore",
+    ".gitattributes",
+    ".venv",
+    "build",
+    "dist",
+    "examples",
+    "uv.lock",
+    "**/__pycache__",
+    "**/.pytest_cache",
+    "**/.ruff_cache",
+    "*.whl",
+]
+
+[tool.cibuildwheel]
+build = ["cp311-*", "cp312-*", "cp313-*", "cp314-*", "cp315-*"]
+# cp3*t: the pybind11 module does not call py::mod_gil_not_used(), so a
+#        free-threaded wheel would load but force the GIL back on. Enabling
+#        these needs a thread-safety audit of the C++ first.
+# pp*:   scipy ships no PyPy wheels, so the test step could not run.
+skip = ["cp3*t-*", "pp*", "*_i686", "*-win32"]
+build-frontend = "build"
+build-verbosity = 1
+test-requires = ["pytest>=8"]
+# Deliberately no matplotlib here: this also proves on every build that
+# importing pdf_estimator works without the optional plot dependency.
+test-command = "pytest -q {project}/tests"
+
+[tool.cibuildwheel.linux]
+archs = ["auto64"]
+manylinux-x86_64-image = "manylinux_2_28"
+manylinux-aarch64-image = "manylinux_2_28"
+
+[tool.cibuildwheel.macos]
+archs = ["auto64"]
+
+[tool.cibuildwheel.windows]
+archs = ["AMD64"]
+
+# Pin the deployment target per arch: a single global value cannot work,
+# because arm64 has no releases below 11.0.
+[[tool.cibuildwheel.overrides]]
+select = "*-macosx_x86_64"
+environment = { MACOSX_DEPLOYMENT_TARGET = "10.13" }
+
+[[tool.cibuildwheel.overrides]]
+select = "*-macosx_arm64"
+environment = { MACOSX_DEPLOYMENT_TARGET = "11.0" }
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 addopts = "-v --tb=short"
-markers = ["slow: marks tests as slow (deselect with '-m \"not slow\"')"]
 
 [tool.ruff]
-target-version = "py312"
+target-version = "py311"
 line-length = 100
 
 [tool.ruff.lint]

@@ -1,5 +1,7 @@
 import numpy as np
+
 from .base import Distribution
+
 
 class SharpBanana2D(Distribution):
     def __init__(
